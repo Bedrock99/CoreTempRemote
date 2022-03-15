@@ -11,6 +11,6 @@ Portable Installation:
 2. Run and configure CoreTempRemote.
 
 --- Core Temp Setup ---
-1. Downlolad and install Core Temp
+1. Downlolad and install Core Temp from https://www.alcpu.com/CoreTemp/
 2. You need to install the plugin "Core Temp Remote Server"
 3. Configure the Plugin under "Tools" -> "Manage Plugins" 
