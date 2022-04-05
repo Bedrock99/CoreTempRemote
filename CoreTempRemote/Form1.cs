@@ -20,6 +20,8 @@ namespace CoreTempRemote
 {
     public partial class Form1 : Form
     {
+        //TODO icons getting black after a while...
+
         #region --- Variablen ---
 
         JValues m_pJValues = new JValues();
@@ -85,7 +87,7 @@ namespace CoreTempRemote
 
         #region --- StartListen ---
 
-        void StartListen()
+        void StartListen(bool bNoMsg_ = false)
         {
             if (InitTcpIp())
             {
@@ -93,7 +95,7 @@ namespace CoreTempRemote
                 InitTreeNodes();
                 timer_Update.Start();
             }
-            else
+            else if(!bNoMsg_)
             {
                 MessageBox.Show($"Couldn't connect to {CConfig.IP_Address}:{CConfig.Port}!\r\n\r\nSettings will be opened.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -203,52 +205,73 @@ namespace CoreTempRemote
 
         private void timer_Update_Tick(object sender, EventArgs e)
         {
-            if (client != null && networkStream != null && reader != null && client.Connected && !reader.EndOfStream)
+            try
             {
-                string strRed = reader.ReadLine();
-                m_pJValues.LoadJson(strRed);
-
-                if (Visible)
+                if (client != null && networkStream != null && reader != null && client.Connected && !reader.EndOfStream)
                 {
-                    m_tnCpuName.Text = m_pJValues.CpuName;
+                    string strRed = reader.ReadLine();
+                    m_pJValues.LoadJson(strRed);
 
-                    m_tnCpuLoad.Text = $"Load: {m_pJValues.CpuLoadAvg} %";
-                    for (int i = 0; i < m_pJValues.CpuLoads.Count; i++)
-                        m_tnCpuLoad.Nodes[i].Text = $"Load [{i}]: {m_pJValues.CpuLoads[i]} %";
+                    if (Visible)
+                    {
+                        m_tnCpuName.Text = m_pJValues.CpuName;
 
-                    m_tnCpuTemp.Text = $"Temp: {m_pJValues.CpuTempMax} °C";
-                    for (int i = 0; i < m_pJValues.CpuTemps.Count; i++)
-                        m_tnCpuTemp.Nodes[i].Text = $"Temp [{i}]: {m_pJValues.CpuTemps[i]} °C";
+                        m_tnCpuLoad.Text = $"Load: {m_pJValues.CpuLoadAvg} %";
+                        for (int i = 0; i < m_pJValues.CpuLoads.Count; i++)
+                            m_tnCpuLoad.Nodes[i].Text = $"Load [{i}]: {m_pJValues.CpuLoads[i]} %";
 
-                    m_tnCpuVID.Text = $"VID: {m_pJValues.CpuVID:0.0000000} V";
-                    m_tnCpuFrequency.Text = $"Frequency: {m_pJValues.CpuFrequency:0} MHz";
+                        m_tnCpuTemp.Text = $"Temp: {m_pJValues.CpuTempMax} °C";
+                        for (int i = 0; i < m_pJValues.CpuTemps.Count; i++)
+                            m_tnCpuTemp.Nodes[i].Text = $"Temp [{i}]: {m_pJValues.CpuTemps[i]} °C";
 
-                    m_tnCpuMultiplier.Text = $"Multiplier: {m_pJValues.CpuMultiplier} x";
-                    for (int i = 0; i < m_pJValues.CpuMultipliers.Count; i++)
-                        m_tnCpuMultiplier.Nodes[i].Text = $"Multiplier [{i}]: {m_pJValues.CpuMultipliers[i]} x";
+                        m_tnCpuVID.Text = $"VID: {m_pJValues.CpuVID:0.0000000} V";
+                        m_tnCpuFrequency.Text = $"Frequency: {m_pJValues.CpuFrequency:0} MHz";
 
-                    m_tnCpuPower.Text = $"Power: {m_pJValues.CpuPowerAvg} W";
+                        m_tnCpuMultiplier.Text = $"Multiplier: {m_pJValues.CpuMultiplier} x";
+                        for (int i = 0; i < m_pJValues.CpuMultipliers.Count; i++)
+                            m_tnCpuMultiplier.Nodes[i].Text = $"Multiplier [{i}]: {m_pJValues.CpuMultipliers[i]} x";
 
-                    m_tnMemLoad.Text = $"Load: {m_pJValues.MemLoad}";
-                    m_tnMemPhysTotal.Text = $"Physical Total: {m_pJValues.MemPhysTotal}";
-                    m_tnMemPhysFree.Text = $"Physical Free: {m_pJValues.MemPhysFree}";
-                    m_tnMemPhysUsed.Text = $"Physical Used: {m_pJValues.MemPhysUsed}";
-                    m_tnMemPageTotal.Text = $"Page Total: {m_pJValues.MemPageTotal}";
-                    m_tnMemPageFree.Text = $"Page Free: {m_pJValues.MemPageFree}";
-                    m_tnMemPageUsed.Text = $"Page Used: {m_pJValues.MemPageUsed}";
-                    m_tnMemVirtualTotal.Text = $"Virtual Total: {m_pJValues.MemVirtualTotal}";
-                    m_tnMemVirtualFree.Text = $"Virtual Free: {m_pJValues.MemVirtualFree}";
-                    m_tnMemVirtualUsed.Text = $"Virtual Used: {m_pJValues.MemVirtualUsed}";
+                        m_tnCpuPower.Text = $"Power: {m_pJValues.CpuPowerAvg} W";
+
+                        m_tnMemLoad.Text = $"Load: {m_pJValues.MemLoad}";
+                        m_tnMemPhysTotal.Text = $"Physical Total: {m_pJValues.MemPhysTotal}";
+                        m_tnMemPhysFree.Text = $"Physical Free: {m_pJValues.MemPhysFree}";
+                        m_tnMemPhysUsed.Text = $"Physical Used: {m_pJValues.MemPhysUsed}";
+                        m_tnMemPageTotal.Text = $"Page Total: {m_pJValues.MemPageTotal}";
+                        m_tnMemPageFree.Text = $"Page Free: {m_pJValues.MemPageFree}";
+                        m_tnMemPageUsed.Text = $"Page Used: {m_pJValues.MemPageUsed}";
+                        m_tnMemVirtualTotal.Text = $"Virtual Total: {m_pJValues.MemVirtualTotal}";
+                        m_tnMemVirtualFree.Text = $"Virtual Free: {m_pJValues.MemVirtualFree}";
+                        m_tnMemVirtualUsed.Text = $"Virtual Used: {m_pJValues.MemVirtualUsed}";
+                    }
+
+                    ni_Power.Text = $"{m_pJValues.CpuPowerAvg} W";
+                    ni_Temp.Text = $"{m_pJValues.CpuTempMax} °C";
+                    ni_Frequency.Text = $"{m_pJValues.CpuFrequency:0} MHz";
+                    ni_Load.Text = $"{m_pJValues.CpuLoadAvg} %";
+
+                    ni_Power.Icon = m_pJValues.Icon_Power;
+                    ni_Temp.Icon = m_pJValues.Icon_Temp;
+                    ni_Frequency.Icon = m_pJValues.Icon_Frequency;
+                    ni_Load.Icon = m_pJValues.Icon_Load;
                 }
-
-                ni_Power.Text = $"{m_pJValues.CpuPowerAvg} W";
-                ni_Power.Icon = m_pJValues.Icon_Power;
-                ni_Temp.Text = $"{m_pJValues.CpuTempMax} °C";
-                ni_Temp.Icon = m_pJValues.Icon_Temp;
-                ni_Frequency.Text = $"{m_pJValues.CpuFrequency:0} MHz";
-                ni_Frequency.Icon = m_pJValues.Icon_Frequency;
-                ni_Load.Text = $"{m_pJValues.CpuLoadAvg} %";
-                ni_Load.Icon = m_pJValues.Icon_Load;
+            }
+            catch(Exception ex)
+            {
+                timer_Update.Stop();
+                tv_Cpu.Nodes.Clear();
+                tv_Mem.Nodes.Clear();
+                m_tnCpuName = tv_Cpu.Nodes.Add("Error: " + ex.Message);
+                m_tnMem = tv_Mem.Nodes.Add("Error: " + ex.Message);
+                ni_Power.Icon = ni_Temp.Icon = ni_Frequency.Icon = ni_Load.Icon = SystemIcons.Error;
+                ni_Power.Text = ni_Temp.Text = ni_Frequency.Text = ni_Load.Text = "Error: " + ex.Message;
+                DeInitTcpIp();
+                for (int i = 0; i < 100; i++)
+                {
+                    Thread.Sleep(10);
+                    Application.DoEvents();
+                }
+                StartListen();
             }
         }
 
