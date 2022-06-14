@@ -63,15 +63,10 @@ namespace CoreTempRemote
 
         #region -- Icons --
 
-        public Icon Icon_Temp { get; private set; }
-        public Icon Icon_Load { get; private set; }
-        public Icon Icon_Frequency { get; private set; }
-        public Icon Icon_Power { get; private set; }
-
-        public IntPtr Icon_TempHandle = IntPtr.Zero;
-        public IntPtr Icon_LoadHandle = IntPtr.Zero;
-        public IntPtr Icon_FrequencyHandle = IntPtr.Zero;
-        public IntPtr Icon_PowerHandle = IntPtr.Zero;
+        public Bitmap Bmp_Temp { get; private set; }
+        public Bitmap Bmp_Load { get; private set; }
+        public Bitmap Bmp_Frequency { get; private set; }
+        public Bitmap Bmp_Power { get; private set; }
 
         #endregion
 
@@ -170,10 +165,10 @@ namespace CoreTempRemote
 
             #region -- Create Icons --
 
-            Icon_Frequency = CreateIcon("Freq", (CpuFrequency / 1000.0).ToString("0.0").Replace(",", ""), Color.Cyan, ref Icon_TempHandle, true);
-            Icon_Load = CreateIcon("Load", CpuLoadAvg.ToString(), Color.Yellow, ref Icon_LoadHandle);
-            Icon_Temp = CreateIcon("Temp", CpuTempMax.ToString("0"), Color.FromArgb(255, 32, 32), ref Icon_FrequencyHandle);
-            Icon_Power = CreateIcon("Pwr", CpuPowerAvg.ToString("0"), Color.Magenta, ref Icon_PowerHandle);
+            Bmp_Frequency = CreateIcon("Freq", (CpuFrequency / 1000.0).ToString("0.0").Replace(",", ""), Color.Cyan, true);
+            Bmp_Load = CreateIcon("Load", CpuLoadAvg.ToString(), Color.Yellow);
+            Bmp_Temp = CreateIcon("Temp", CpuTempMax.ToString("0"), Color.FromArgb(255, 32, 32));
+            Bmp_Power = CreateIcon("Pwr", CpuPowerAvg.ToString("0"), Color.Magenta);
 
             #endregion
         }
@@ -182,13 +177,10 @@ namespace CoreTempRemote
 
         #region --- CreateIcon ---
 
-        public Icon CreateIcon(string name_, string text_, Color col_, ref IntPtr handle_, bool bAddPoint_ = false)
+        public Bitmap CreateIcon(string name_, string text_, Color col_, bool bAddPoint_ = false)
         {
             try
             {
-                if (handle_ != IntPtr.Zero)
-                    DestroyIcon(handle_);
-
                 int iTextSize = 9;
                 int iTextPos = 5;
                 if (text_.Length > 2 && !bAddPoint_)
@@ -196,20 +188,27 @@ namespace CoreTempRemote
                     iTextSize = 6;
                     iTextPos = 8;
                 }
+
                 Bitmap bmp = new Bitmap(16, 16);
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    g.SmoothingMode = SmoothingMode.None;
-                    g.PixelOffsetMode = PixelOffsetMode.None;
-                    g.Clear(Color.Black);
-                    g.DrawString(name_, new Font("Consolas", 5), new SolidBrush(col_), 0, 0);
-                    g.DrawString(text_, new Font("Consolas", iTextSize), new SolidBrush(col_), 0, iTextPos);
-                    if (bAddPoint_)
-                        g.DrawLine(new Pen(col_, 1), 8, 14, 8, 16);
-                }
-                handle_ = bmp.GetHicon();
-                return Icon.FromHandle(handle_);
+                Font f1 = new Font("Consolas", 5);
+                Font f2 = new Font("Consolas", iTextSize);
+                SolidBrush b = new SolidBrush(col_);
+                Graphics g = Graphics.FromImage(bmp);
+
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.SmoothingMode = SmoothingMode.None;
+                g.PixelOffsetMode = PixelOffsetMode.None;
+                g.Clear(Color.Black);
+                g.DrawString(name_, f1, b, 0, 0);
+                g.DrawString(text_, f2, b, 0, iTextPos);
+                if (bAddPoint_)
+                    g.DrawLine(new Pen(col_, 1), 8, 14, 8, 16);
+
+                f1.Dispose();
+                f2.Dispose();
+                b.Dispose();
+                g.Dispose();
+                return bmp;
             }
             catch (Exception)
             {

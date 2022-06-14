@@ -52,7 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitmapHolder.cs" />
     <Compile Include="CConfig.cs" />
+    <Compile Include="CExtensions.cs" />
+    <Compile Include="Converter.cs" />
     <Compile Include="DoubleBufferedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -68,6 +71,8 @@
     <Compile Include="FormSettings.Designer.cs">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
+    <Compile Include="IconHolder.cs" />
+    <Compile Include="ImageStructs.cs" />
     <Compile Include="JValues.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

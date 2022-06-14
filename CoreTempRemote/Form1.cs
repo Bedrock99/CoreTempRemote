@@ -20,8 +20,6 @@ namespace CoreTempRemote
 {
     public partial class Form1 : Form
     {
-        //TODO icons getting black after a while...
-
         #region --- Variablen ---
 
         JValues m_pJValues = new JValues();
@@ -161,8 +159,29 @@ namespace CoreTempRemote
             if (reader == null)
                 return;
 
-            string strRed = reader.ReadLine();
-            m_pJValues.LoadJson(strRed);
+            try
+            {
+                string strRed = reader.ReadLine();
+                m_pJValues.LoadJson(strRed);
+            } 
+            catch(Exception ex) 
+            {
+                timer_Update.Stop();
+                tv_Cpu.Nodes.Clear();
+                tv_Mem.Nodes.Clear();
+                m_tnCpuName = tv_Cpu.Nodes.Add("Error: " + ex.Message);
+                m_tnMem = tv_Mem.Nodes.Add("Error: " + ex.Message);
+                ni_Power.Icon = ni_Temp.Icon = ni_Frequency.Icon = ni_Load.Icon = SystemIcons.Error;
+                ni_Power.Text = ni_Temp.Text = ni_Frequency.Text = ni_Load.Text = ("Error: " + ex.Message).Truncate(60);
+                DeInitTcpIp();
+                for (int i = 0; i < 100; i++)
+                {
+                    Thread.Sleep(10);
+                    Application.DoEvents();
+                }
+                StartListen();
+                return;
+            }
 
             m_tnCpuName = tv_Cpu.Nodes.Add(m_pJValues.CpuName);
 
@@ -250,10 +269,18 @@ namespace CoreTempRemote
                     ni_Frequency.Text = $"{m_pJValues.CpuFrequency:0} MHz";
                     ni_Load.Text = $"{m_pJValues.CpuLoadAvg} %";
 
-                    ni_Power.Icon = m_pJValues.Icon_Power;
-                    ni_Temp.Icon = m_pJValues.Icon_Temp;
-                    ni_Frequency.Icon = m_pJValues.Icon_Frequency;
-                    ni_Load.Icon = m_pJValues.Icon_Load;
+                    if (ni_Power.Icon != null)
+                    {
+                        ni_Power.Icon.Dispose();
+                        ni_Temp.Icon.Dispose();
+                        ni_Frequency.Icon.Dispose();
+                        ni_Load.Icon.Dispose();
+                    }
+
+                    ni_Power.Icon = FlimFlan.IconEncoder.Converter.BitmapToIcon(m_pJValues.Bmp_Power);
+                    ni_Temp.Icon = FlimFlan.IconEncoder.Converter.BitmapToIcon(m_pJValues.Bmp_Temp);
+                    ni_Frequency.Icon = FlimFlan.IconEncoder.Converter.BitmapToIcon(m_pJValues.Bmp_Frequency);
+                    ni_Load.Icon = FlimFlan.IconEncoder.Converter.BitmapToIcon(m_pJValues.Bmp_Load);
                 }
             }
             catch(Exception ex)
@@ -264,7 +291,7 @@ namespace CoreTempRemote
                 m_tnCpuName = tv_Cpu.Nodes.Add("Error: " + ex.Message);
                 m_tnMem = tv_Mem.Nodes.Add("Error: " + ex.Message);
                 ni_Power.Icon = ni_Temp.Icon = ni_Frequency.Icon = ni_Load.Icon = SystemIcons.Error;
-                ni_Power.Text = ni_Temp.Text = ni_Frequency.Text = ni_Load.Text = "Error: " + ex.Message;
+                ni_Power.Text = ni_Temp.Text = ni_Frequency.Text = ni_Load.Text = ("Error: " + ex.Message).Truncate(60);
                 DeInitTcpIp();
                 for (int i = 0; i < 100; i++)
                 {
